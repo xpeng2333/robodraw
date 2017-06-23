@@ -2,7 +2,7 @@
 import numpy as np
 from PIL import Image
 from pylab import *
-import types
+#import types
 from skimage import io, data
 
 # 读取图片,灰度化，并转为数组
@@ -29,6 +29,7 @@ for x in h[::2]:
         im[x, y] = 255
 
 # 在“点图”中连线
+
 
 imshow(im)
 # imshow(matrix)
