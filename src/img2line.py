@@ -6,7 +6,7 @@ import types
 from skimage import io, data
 
 # 读取图片,灰度化，并转为数组
-im0 = Image.open("test.jpeg").convert('L')
+im0 = Image.open("../data/img/girl.jpeg").convert('L')
 im = array(im0)
 
 # print(type(im[1, 1]))
