@@ -17,7 +17,7 @@ n = im.shape[1]
 h = range(m - 2)
 k = range(n - 2)
 
-matrix = np.array([[255 for i in range(n)] for i in range(m)])
+# matrix = np.array([[255 for i in range(n)] for i in range(m)])
 limit = 255
 
 gray()
@@ -34,13 +34,17 @@ for x in h[::2]:
 # 确定划线方向函数,exist已存在0:无 1：左上 2：上 3：右上 4：左 x,y坐标
 # 返回0:下 1：左下 2：右下 3：右
 def direct(exist, x, y):
-    right = abs(int(im[x, y]) - int(im[x, y + 1]))
-    rightdown = abs(int(im[x, y]) - int(im[x + 1, y + 1]))
-    down = abs(int(im[x, y]) - int(im[x + 1, y]))
-    leftdown = abs(int(im[x, y]) - int(im[x + 1, y - 1]))
-    sortlist = sorted([down, leftdown, rightdown, right])
-    print(min(sortlist))
-    return
+    rt = abs(int(im[x, y]) - int(im[x, y + 1]))
+    rd = abs(int(im[x, y]) - int(im[x + 1, y + 1]))
+    dn = abs(int(im[x, y]) - int(im[x + 1, y]))
+    ld = abs(int(im[x, y]) - int(im[x + 1, y - 1]))
+    path = {
+        'down': dn,
+        'leftdown': ld,
+        'right': rt,
+        'rightdown': rd
+    }
+    return sorted(path.keys())
 
 
 # 在“点图”中连线
@@ -67,7 +71,17 @@ for x in h[:m - 2:2]:
             continue
 
         # 孤立点
-        direct(0, x, y)
+        sortlist = direct(0, x, y)
+        if(min(sortlist) == 'down'):
+            print(min(sortlist))
+            im[x + 1, y] = (int(im[x, y]) + int(im[x + 2, y])) / 2
+        if(min == 'leftdown'):
+            im[x + 1, y - 1] = (int(im[x, y]) + int(im[x - 2, y - 2])) / 2
+        if(min == 'right'):
+            im[x, y + 1] = (int(im[x, y]) + int(im[x, y + 2])) / 2
+        if(min == 'rightdown'):
+            im[x + 1, y + 1] = (int(im[x, y]) + int(im[x + 2, y + 2])) / 2
+ #   print(min(sortlist)
 
 imshow(im)
 # imshow(matrix)
