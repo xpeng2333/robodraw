@@ -27,9 +27,9 @@ int main() {
             uchar *data = frame.ptr<uchar>(i);
             bool find = false;
             for (int j = 0; j < colNum; j += 3) {
-                if (data[j] > -1 && data[j] < 100) {
-                    if (data[j + 1] > 200 && data[j + 1] < 256) {
-                        if (data[j + 2] > 200 && data[j + 2] < 256) {
+                if (data[j] > 200 && data[j] < 256) {
+                    if (data[j + 1] > -1 && data[j + 1] < 30) {
+                        if (data[j + 2] > -1 && data[j + 2] < 30) {
                             if (first_tag == true) {
                                 position_startx = position_endx;
                                 position_starty = position_endy;
