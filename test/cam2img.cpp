@@ -15,32 +15,50 @@ int main() {
     Mat frame;
     capture >> frame;
     Mat canvas(frame.rows, frame.cols, CV_8UC3, Scalar(255, 255, 255));
-    int position_startx, position_starty = -1;
-    int position_endx, position_endy = 0;
+    int position_startx, position_starty;
+    int position_endx, position_endy = -1;
+    bool first_tag = false;
+
     while (1) {
         capture >> frame;
         int rowNum = frame.rows;
-        int colNum = frame.cols;
+        int colNum = frame.cols * frame.channels();
         for (int i = 0; i < rowNum; i++) {
             uchar *data = frame.ptr<uchar>(i);
-            for (int j = 0; j < colNum; j++) {
-                if (data[j] > 0 && data[j] < 30)
-                    if (data[j + 1] > 100 && data[j + 1] < 200)
-                        if (data[j + 2] > 250 && data[j + 2] < 256) {
-                            position_startx = position_endx;
-                            position_starty = position_endy;
-                            position_endx = i;
-                            position_endy = j;
+            bool find = false;
+            for (int j = 0; j < colNum; j += 3) {
+                if (data[j] > -1 && data[j] < 100) {
+                    if (data[j + 1] > 200 && data[j + 1] < 256) {
+                        if (data[j + 2] > 200 && data[j + 2] < 256) {
+                            if (first_tag == true) {
+                                position_startx = position_endx;
+                                position_starty = position_endy;
+                                position_endx = j;
+                                position_endy = i;
+                            } else {
+                                position_startx = position_endx = j;
+                                position_starty = position_endy = i;
+                                first_tag = true;
+                            }
+                            find = true;
+                            break;
                         }
-                if (position_starty != -1)
-                    DrawLine(canvas, Point(position_startx, position_starty),
-                             Point(position_endx, position_endy));
-                imshow("画布", canvas);
-                waitKey(30);
+                    }
+                }
             }
+            if (find)
+                break;
+        }
+        if (position_endy != -1) {
+            printf("%d %d\n", position_endx, position_endy);
+            DrawLine(canvas, Point(position_startx, position_starty),
+                     Point(position_endx, position_endy));
         }
 
-        usleep(100000);
+        imshow("画布", canvas);
+        waitKey(30);
+        usleep(1000000);
+        printf("I am awaking\n");
     }
 
     return 0;
