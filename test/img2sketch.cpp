@@ -4,8 +4,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace cv;
 
-int main() {
-    Mat src = imread("../data/img/girl.jpeg", 1);
+int main(int argc, char *argv[]) {
+    Mat src = imread(argv[1], 1);
     int width = src.cols;
     int heigh = src.rows;
     Mat gray0, gray1;
@@ -29,7 +29,7 @@ int main() {
             P[x] = (uchar)min((tmp0 + (tmp0 * tmp1) / (256 - tmp1)), 255);
         }
     }
-    imshow("素描", img);
+    //    imshow("素描", img);
     waitKey();
-    //   imwrite("D:/素描.jpg",img);
+    imwrite("sketch.jpg", img);
 }
