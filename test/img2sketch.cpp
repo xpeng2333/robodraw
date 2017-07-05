@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     //反色
     addWeighted(gray0, -1, NULL, 0, 255, gray1);
     //高斯模糊,高斯核的Size与最后的效果有关
-    GaussianBlur(gray1, gray1, Size(51, 51), 0);
+    GaussianBlur(gray1, gray1, Size(21, 21), 0);
 
     //融合：颜色减淡
     Mat img(gray1.size(), CV_8UC1);
