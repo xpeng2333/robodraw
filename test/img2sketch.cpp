@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
             P[x] = (uchar)min((tmp0 + (tmp0 * tmp1) / (256 - tmp1)), 255);
         }
     }
-    //    imshow("素描", img);
+
     waitKey();
     imwrite("sketch.jpg", img);
 }
