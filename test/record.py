@@ -1,3 +1,4 @@
+# encording utf-8
 import pyaudio
 import wave
 import sys
