@@ -4,6 +4,8 @@ import base64
 import wave
 from pydub import AudioSegment  # 需要安装pydub、ffmpeg
 import io
+import sys
+import os
 
 
 class BaiduRest:
@@ -81,6 +83,8 @@ if __name__ == "__main__":
     bdr = BaiduRest("test_python", api_key, api_secert)
     # 将字符串语音合成并保存为out.mp3
     bdr.getVoice(
-        "问题,作为开发人员,你的职责是什么,答按照工作进度和编程工作规范编写系统中的关键模块,设计编写详细设计,配合测试员修改相应的程序,提供软件的后期技术支持,进行编码实现,代码走查,单元测试,产品交付,", "out.mp3")
+        "大家好，我是怪咖达芬奇队的小芬奇！", "out.mp3")
     # 识别test.wav语音内容并显示
     print(bdr.getText(bdr.ConvertToWav("out.mp3", "test.wav")))
+
+    os.system("mpg123 out.mp3")
