@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -6,18 +7,19 @@
 #include <unistd.h>
 
 using namespace cv;
-using namespace std;
+// using namespace std;
 
 void DrawLine(Mat img, Point start, Point end);
 
 int main() {
-    VideoCapture capture(0);
+    VideoCapture capture(1);
     Mat frame;
     capture >> frame;
     Mat canvas(frame.rows, frame.cols, CV_8UC3, Scalar(255, 255, 255));
     int position_startx, position_starty;
     int position_endx, position_endy = -1;
     bool first_tag = false;
+    int limit = 20;
 
     while (1) {
         capture >> frame;
@@ -27,24 +29,44 @@ int main() {
             uchar *data = frame.ptr<uchar>(i);
             bool find = false;
             for (int j = 0; j < colNum; j += 3) {
-                if (data[j] > 200 && data[j] < 256) {
-                    if (data[j + 1] > -1 && data[j + 1] < 30) {
-                        if (data[j + 2] > -1 && data[j + 2] < 30) {
-                            if (first_tag == true) {
-                                position_startx = position_endx;
-                                position_starty = position_endy;
-                                position_endx = j;
-                                position_endy = i;
-                            } else {
-                                position_startx = position_endx = j;
-                                position_starty = position_endy = i;
-                                first_tag = true;
-                            }
-                            find = true;
-                            break;
-                        }
+                if (limit > max(abs(data[j] - 10), abs(data[j + 1] - 10),
+                                abs(data[j + 2] - 10))) {
+                    if (first_tag == true) {
+                        position_startx = position_endx;
+                        position_starty = position_endy;
+                        position_endx = j;
+                        position_endy = i;
+                    } else {
+                        position_startx = position_endx = j;
+                        position_starty = position_endy = i;
+                        first_tag = true;
                     }
+                    find = true;
+                    break;
                 }
+                /*
+                                if (data[j] > -1 && data[j] < 30) {
+                                    if (data[j + 1] > -1 && data[j + 1] < 30) {
+                                        if (data[j + 2] > -1 && data[j + 2] <
+                   30) {
+                                            if (first_tag == true) {
+                                                position_startx = position_endx;
+                                                position_starty = position_endy;
+                                                position_endx = j;
+                                                position_endy = i;
+                                            } else {
+                                                position_startx = position_endx
+                   = j;
+                                                position_starty = position_endy
+                   = i;
+                                                first_tag = true;
+                                            }
+                                            find = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                */
             }
             if (find)
                 break;
@@ -58,7 +80,7 @@ int main() {
         imshow("画布", canvas);
         waitKey(30);
         usleep(1000000);
-        printf("I am awaking\n");
+        printf("I am awake\n");
     }
 
     return 0;
