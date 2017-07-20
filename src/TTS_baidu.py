@@ -10,10 +10,8 @@ channel.queue_declare(queue='TTS')
 
 
 def TTS_rabbit(text):
-    api_key = "N0it8NCDVBt26v8Q9QCOaNzH"
-    api_secret = "HR6Df4I07wNXbRdrHxf2uv93PCmAVdak"
-    bdr = ASR_TTS.BaiduRest("test_python", api_key, api_secret)
-    bdr.getVoice(text, "out.mp3")
+    bdr = ASR_TTS.BaiduRest("test_python")
+    bdr.getVoice(text, "output.mp3")
 
 
 def callback(ch, method, properties, body):
