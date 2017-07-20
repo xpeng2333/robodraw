@@ -9,7 +9,9 @@ import os
 
 
 class BaiduRest:
-    def __init__(self, cu_id, api_key, api_secert):
+    def __init__(self, cu_id):
+        api_key = "N0it8NCDVBt26v8Q9QCOaNzH"
+        api_secert = "HR6Df4I07wNXbRdrHxf2uv93PCmAVdak"
         # token认证的url
         self.token_url = "https://openapi.baidu.com/oauth/2.0/token"
         # 语音合成的resturl
