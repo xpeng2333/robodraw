@@ -22,4 +22,4 @@ def callback(ch, method, properties, body):
 
 channel.basic_consume(callback, queue='TTS', no_ack=True)
 
-channel .start_consuming()
+channel.start_consuming()
