@@ -57,7 +57,7 @@ class BaiduRest:
 
     def ConvertToWav(self, filename, wavfilename):
         # 先从本地获取mp3的bytestring作为数据样本
-        fp = open("out.mp3", 'rb')
+        fp = open("filename", 'rb')
         data = fp.read()
         fp.close()
         # 主要部分
