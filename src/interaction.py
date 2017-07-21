@@ -1,6 +1,6 @@
 # coding:UTF-8
 import pika
-import requests
+import tuling
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
@@ -23,13 +23,7 @@ def sendAnswer(text):
 
 
 def analyse(body):
-    resp = requests.post("http://www.tuling123.com/openapi/api", data={
-        #        "key": "d59c41e816154441ace453269ea08dba",
-        "key": "ff772ad12e0c421f98da2dd7f6a9289c",
-        "info": body,
-        "userid": "xiaopeng"
-    })
-    resp = resp.json()
+    resp = tuling.chatbot(body)
     print(resp)
     sendAnswer(resp['text'])
 
