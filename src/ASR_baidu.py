@@ -26,9 +26,9 @@ channel = connection.channel()
 channel.queue_declare(queue='ASR')
 
 
-def ASR_rabbit():
+def ASR_rabbit(filename):
     bdr = ASR_TTS.BaiduRest("test_python")
-    s = bdr.getText("input.wav")
+    s = bdr.getText(filename)
     re_list = (json.loads(s).get('result'))
     if isinstance(re_list, list):
         list_text = re_list[0]
@@ -105,7 +105,7 @@ while True:
             # if  time_flag:
             if len(save_buffer) > 0 or time_flag:
                 # filename = datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + ".wav"#原本是用时间做名字
-                filename = "input.wav"
+                filename = "../data/audio/input.wav"
                 flag_num += 1
 
                 save_wave_file(filename, save_buffer)
@@ -114,4 +114,4 @@ while True:
                 sum = 0
                 time_flag = 0
                 print(filename, "保存成功正在进行语音识别")
-                ASR_rabbit()
+                ASR_rabbit(filename)
