@@ -11,7 +11,7 @@ channel.queue_declare(queue='TTS')
 
 def TTS_rabbit(text):
     bdr = ASR_TTS.BaiduRest("test_python")
-    bdr.getVoice(text, "output.mp3")
+    bdr.getVoice(text, "../data/audio/output.mp3")
 
 
 def callback(ch, method, properties, body):
