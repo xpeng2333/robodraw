@@ -6,13 +6,14 @@ const int steper3_dir = 34;
 const int steper3_pul = 35;
 const int signal_rev = 13;
 
-const int std_speed = 1000;
+const int std_speed = 4000;
 int dir1 = 0;
 int steps1 = 0;
 int dir2 = 0;
 int steps2 = 0;
 int dir3 = 0;
 int steps3 = 0;
+bool tag = 0;
 
 int readSerial() {
     int num = 0;
@@ -23,6 +24,8 @@ int readSerial() {
         while (incomingByte != '#') {
             if (incomingByte >= '0' && incomingByte <= '9')
                 num = num * 10 + (incomingByte - '0');
+            while (!Serial.available())
+                ;
             incomingByte = Serial.read();
         }
     }
@@ -69,16 +72,20 @@ void setup() {
 void loop() {
     // put your main code here, to run repeatedly:
     while (!Serial.available())
-        ;
-    delay(20);
+        tag = 0;
+    if (tag == 0) {
+        delay(50);
+        tag = 1;
+    };
+
     if (Serial.read() == '$') {
-        dir1 = readSerial();
+        dir1 = Serial.read();
         steps1 = readSerial();
-        dir2 = readSerial();
+        dir2 = Serial.read();
         steps2 = readSerial();
-        dir3 = readSerial();
+        dir3 = Serial.read();
         steps3 = readSerial();
+        Serial.write('@');
         step_para(dir1, steps1, dir2, steps2, dir3, steps3);
     }
-    Serial.write('@');
 }
