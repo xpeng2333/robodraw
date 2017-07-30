@@ -39,6 +39,7 @@ int main() {
     curr.x = 100 + 80 * cos(an);
     curr.y = -100 + 60 * sin(an);
     curr.z = -260;
+    an += 0.05;
     for (int i = 0; i < num; i++) {
         next.x = 100 + 80 * cos(an);
         next.y = -100 + 60 * sin(an);
@@ -48,17 +49,7 @@ int main() {
         curr = next;
     }
     out.close();
-    /*
-    xyz curr = {23, 45, 67};
-    xyz next = {44, 34, 87};
-    xyz curr1 = {26, 43, -64};
-    xyz next1 = {49, 38, -87};
-    if (out.is_open()) {
-        out << f_dirsteps(curr, next);
-        out << f_dirsteps(curr1, next1);
-        out.close();
-    }
-    */
+
     return 0;
 }
 
@@ -89,19 +80,19 @@ string f_dirsteps(xyz curr, xyz next) {
     float angle_b = next_angles.b - curr_angles.b;
     float angle_r = next_angles.r - curr_angles.r;
     if (angle_a > 0)
-        fpath = fpath + "1#" + num2str(int(angle_a * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(round(angle_a * angle2step)) + "#";
     else
-        fpath = fpath + "0#" + num2str(int(-angle_a * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(round(-angle_a * angle2step)) + "#";
 
     if (angle_b > 0)
-        fpath = fpath + "1#" + num2str(int(angle_b * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(round(angle_b * angle2step)) + "#";
     else
-        fpath = fpath + "0#" + num2str(int(-angle_b * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(round(-angle_b * angle2step)) + "#";
 
     if (angle_r > 0)
-        fpath = fpath + "1#" + num2str(int(angle_r * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(round(angle_r * angle2step)) + "#";
     else
-        fpath = fpath + "0#" + num2str(int(-angle_r * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(round(-angle_r * angle2step)) + "#";
 
     fpath = fpath + "@";
     return fpath;
