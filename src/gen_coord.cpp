@@ -18,6 +18,7 @@ typedef struct xyz {
 } xyz;
 
 void gen_coord(string file_path);
+xyz find_dot(xyz circle, bool &map, int width, int height);
 
 int main() {
     gen_coord("../data/img/sketch.jpg");
@@ -38,6 +39,8 @@ void gen_coord(string file_path) {
             tag[h][w] = 0;
         }
     }
+
+    
 }
 
 xyz find_dot(xyz circle, bool &map, int width, int height) {
