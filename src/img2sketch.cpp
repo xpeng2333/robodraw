@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 
     //融合：颜色减淡
     Mat img(gray1.size(), CV_8UC1);
+    Mat img_line;
     for (int y = 0; y < height; y++) {
 
         uchar *P0 = gray0.ptr<uchar>(y);
@@ -29,8 +30,9 @@ int main(int argc, char *argv[]) {
             P[x] = (uchar)min((tmp0 + (tmp0 * tmp1) / (256 - tmp1)), 255);
         }
     }
-
+    Canny(img, img_line, 50, 100, 3);
     waitKey();
     imwrite("sketch.jpg", img);
+    imwrite("line.jpg", img_line);
     return 0;
 }
