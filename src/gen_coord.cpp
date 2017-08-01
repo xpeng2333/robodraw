@@ -91,13 +91,13 @@ xyz find_dot(xyz circle, bool &map, int width, int height) {
         for (int lt = -cr + 1; lt < cr + 1; lt++) { //左面的边
             if (x - cr < 0)
                 break;
-            if (y + rt < 0)
+            if (y + lt < 0)
                 continue;
-            if (y + rt + 1 > height)
+            if (y + lt + 1 > height)
                 break;
-            if (!map[x - cr][y + rt]) {
-                next_dot = {x - cr, y + rt, cr};
-                map[x - cr][y + rt] = 1;
+            if (!map[x - cr][y + lt]) {
+                next_dot = {x - cr, y + lt, cr};
+                map[x - cr][y + lt] = 1;
                 return next_dot;
             }
         }
