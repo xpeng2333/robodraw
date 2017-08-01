@@ -9,7 +9,7 @@
 #include <string>
 
 const double PI = 3.1415926536;
-const int angle2step = 15;
+const int angle2step = 120;
 
 typedef struct angles {
     float a;
@@ -31,23 +31,68 @@ string num2str(int i);
 
 int main() {
     int num = 2 * PI / 0.05;
-    float an = 0;
+    float an = 3;
     ofstream out("out.txt");
     xyz curr = {200, 0, -250};
-    xyz next = {180, -100, -260};
+    xyz next = {180, -40, -250};
+    xyz dot1 = {180, -40, -282};
+    xyz dot2 = {190, -50, -250};
+    xyz dot3 = {190, -50, -282};
+    xyz dot4 = {160, -60, -250};
+    xyz dot5 = {160, -60, -282};
+    xyz dot6 = {170, -70, -250};
+    xyz dot7 = {170, -70, -285};
     out << f_dirsteps(curr, next);
-    curr.x = 100 + 80 * cos(an);
-    curr.y = -100 + 60 * sin(an);
-    curr.z = -260;
-    an += 0.05;
-    for (int i = 0; i < num; i++) {
-        next.x = 100 + 80 * cos(an);
-        next.y = -100 + 60 * sin(an);
-        next.z = -260;
-        out << f_dirsteps(curr, next);
-        an = an + 0.05;
-        curr = next;
-    }
+    out << f_dirsteps(next, dot1);
+    out << f_dirsteps(dot1, next);
+    out << f_dirsteps(next, dot2);
+    out << f_dirsteps(dot2, dot3);
+    out << f_dirsteps(dot3, dot2);
+    out << f_dirsteps(dot2, dot4);
+    out << f_dirsteps(dot4, dot5);
+    out << f_dirsteps(dot5, dot4);
+    out << f_dirsteps(dot4, dot6);
+    out << f_dirsteps(dot6, dot7);
+    out << f_dirsteps(dot7, dot6);
+    out << f_dirsteps(dot6, curr);
+
+    /*   xyz next = {130, -20, -250};
+       out << f_dirsteps(curr, next);
+       curr = next;
+       next = {130, -20, -282};
+       out << f_dirsteps(curr, next);
+       curr = next;
+       for (int i = 0; i < 150; i++) {
+           next.x = 180 + 50 * cos(an);
+           next.y = -20 + 50 * sin(an);
+           next.z = -282;
+           out << f_dirsteps(curr, next);
+           an -= 0.05;
+           curr = next;
+       }
+     */
+    /*    for (int j = 200; j > 0; j -= 3) {
+            next.x = 100;
+            next.y = -j;
+            next.z = -296;
+            out << f_dirsteps(curr, next);
+            curr = next;
+        }
+     */
+    // next = {200, 0, -250};
+    // out << f_dirsteps(curr, next);
+
+    /*
+    //  xyz dot1 = {100, 100, -260};
+    xyz dot2 = {200, 100, -260};
+    xyz dot3 = {200, 0, -260};
+
+    out << f_dirsteps(curr, next);
+    out << f_dirsteps(next, dot2);
+    // out << f_dirsteps(dot1, dot2);
+    out << f_dirsteps(dot2, dot3);
+    out << f_dirsteps(dot3, curr);
+    */
     out.close();
 
     return 0;
@@ -65,7 +110,7 @@ angles cal_angle(xyz coord) {
                       180 / PI +
                   180;
 
-    angle.b = (acos(45 / p + p / 500) + asin(-coord.z / p)) * 180 / PI;
+    angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p)) * 180 / PI;
     angle.r =
         (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p)) * 180 / PI;
 

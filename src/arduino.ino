@@ -79,11 +79,11 @@ void loop() {
     };
 
     if (Serial.read() == '$') {
-        dir1 = Serial.read();
+        dir1 = int(Serial.read() - '0');
         steps1 = readSerial();
-        dir2 = Serial.read();
+        dir2 = int(Serial.read() - '0');
         steps2 = readSerial();
-        dir3 = Serial.read();
+        dir3 = int(Serial.read() - '0');
         steps3 = readSerial();
         Serial.write('@');
         step_para(dir1, steps1, dir2, steps2, dir3, steps3);
