@@ -10,7 +10,7 @@ using namespace std;
 
 const double PI = 3.1415926535897932384626433832795;
 const float angle2step = 6875.4935;
-const float std_z = -260;
+const float std_z = -270;
 
 typedef struct angles {
     float a;
@@ -35,6 +35,10 @@ xyz init_coord = {280, 0, -250};
 
 int main() {
     gen_coord("../data/img/sketch.jpg");
+    /*  xyz haha = {12, 23, 1};
+      xyz hehe = convert_coord(haha, 200, 300);
+      cout << hehe.x << " " << hehe.y << endl;
+      */
     return 0;
 }
 
@@ -56,47 +60,55 @@ void gen_coord(string file_path) {
     int find_tag = 0;
     for (int h = 0; h < height; h++) {
         for (int w = 0; w < width; w++) {
-            if (cp_img[h][w] == 255) {
-                center = {w, h, 1};
-                find_tag = 1;
-                break;
+            if (cp_img[h][w] > 240) {
+                /*              center = {w, h, 1};
+                              cp_img[h][w] = 0;
+                              find_tag = 1;
+                              break;
+                  */
+                cout << h << " " << w << endl;
             }
         }
-        if (find_tag == 1)
-            break;
+        //       if (find_tag == 1)
+        //         break;
     }
 
-    f_dirsteps(init_coord, convert_coord(center, width, height));
+    out << f_dirsteps(init_coord, convert_coord(center, width, height));
     center.z = 0;
     while (1) {
-        next_center = find_dot(center, (int *)cp_img, width, height);
-        if (next_center.z == -1)
+        next_center = find_dot(center, *cp_img, width, height);
+        //    cout << next_center.x << " " << next_center.y << " " <<
+        //    next_center.z
+        // << endl;
+        if (int(next_center.z) == -1)
             break;
-        if (next_center.z > 3) {
+
+        if (int(next_center.z) > 3) {
             xyz temp1 = center;
             temp1.z = 1;
-            f_dirsteps(convert_coord(center, width, height),
-                       convert_coord(temp1, width, height));
+            out << f_dirsteps(convert_coord(center, width, height),
+                              convert_coord(temp1, width, height));
             next_center.z = 1;
             xyz temp2 = next_center;
-            f_dirsteps(convert_coord(temp1, width, height),
-                       convert_coord(temp2, width, height));
+            out << f_dirsteps(convert_coord(temp1, width, height),
+                              convert_coord(temp2, width, height));
             next_center.z = 0;
-            f_dirsteps(convert_coord(temp2, width, height),
-                       convert_coord(next_center, width, height));
+            out << f_dirsteps(convert_coord(temp2, width, height),
+                              convert_coord(next_center, width, height));
         } else {
             next_center.z = 0;
-            f_dirsteps(convert_coord(center, width, height),
-                       convert_coord(next_center, width, height));
+            out << f_dirsteps(convert_coord(center, width, height),
+                              convert_coord(next_center, width, height));
         }
+
         cp_img[int(center.y)][int(center.x)] = 0;
         center = next_center;
     }
     next_center = center;
     next_center.z = 1;
-    f_dirsteps(convert_coord(center, width, height),
-               convert_coord(next_center, width, height));
-    f_dirsteps(convert_coord(next_center, width, height), init_coord);
+    out << f_dirsteps(convert_coord(center, width, height),
+                      convert_coord(next_center, width, height));
+    out << f_dirsteps(convert_coord(next_center, width, height), init_coord);
     out.close();
 }
 
@@ -119,9 +131,9 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (x + dn + 1 > width)
                 break;
-            if (!map[x + dn][y + cr]) {
+            if (map[x + dn][y + cr] > 245) {
                 next_dot = {x + dn, y + cr, cr};
-                map[x + dn][y + cr] = 0;
+                *(cp_img + width * (x + dn) + y + cr) = 0;
                 return next_dot;
             }
         }
@@ -133,9 +145,9 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (y - rt < 0)
                 break;
-            if (!map[x + cr][y - rt]) {
+            if (map[x + cr][y - rt] > 245) {
                 next_dot = {x + cr, y - rt, cr};
-                map[x + cr][y - rt] = 0;
+                *(cp_img + width * (x + cr) + y - cr) = 0;
                 return next_dot;
             }
         }
@@ -147,9 +159,9 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (x - up < 0)
                 break;
-            if (!map[x - up][y - cr]) {
+            if (map[x - up][y - cr] > 245) {
                 next_dot = {x - up, y - cr, cr};
-                map[x - up][y - cr] = 0;
+                *(cp_img + width * (x - up) + y - cr) = 0;
                 return next_dot;
             }
         }
@@ -161,9 +173,9 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (y + lt + 1 > height)
                 break;
-            if (!map[x - cr][y + lt]) {
+            if (map[x - cr][y + lt] > 245) {
                 next_dot = {x - cr, y + lt, cr};
-                map[x - cr][y + lt] = 0;
+                *(cp_img + width * (x - cr) + y + lt) = 0;
                 return next_dot;
             }
         }
@@ -232,29 +244,29 @@ xyz convert_coord(xyz origin_coord, int width, int height) {
         if (std_width < std_height) {
             ratio = 210.0 / height;
             cvt_coord.x = 330 - int(origin_coord.y * ratio);
-            cvt_coord.y = (50 - (300 - int(origin_coord.x * ratio)) / 2) -
+            cvt_coord.y = (50 - (300 - int(width * ratio)) / 2) -
                           int(origin_coord.x * ratio);
-            cvt_coord.z = std_z - 30 * origin_coord.z;
+            cvt_coord.z = std_z - 10 * origin_coord.z;
         } else {
             ratio = 300.0 / width;
-            cvt_coord.x = (330 - (210 - int(origin_coord.y * ratio)) / 2) -
+            cvt_coord.x = (330 - (210 - int(height * ratio)) / 2) -
                           int(origin_coord.y * ratio);
             cvt_coord.y = 50 - int(origin_coord.x * ratio);
-            cvt_coord.z = std_z - 30 * origin_coord.z;
+            cvt_coord.z = std_z - 10 * origin_coord.z;
         }
     } else {
         if (std_width < std_height) {
             ratio = 300.0 / height;
-            cvt_coord.x = (120 + (210 - int(origin_coord.x * ratio)) / 2) +
+            cvt_coord.x = (120 + (210 - int(width * ratio)) / 2) +
                           int(origin_coord.x * ratio);
             cvt_coord.y = 50 - int(origin_coord.y * ratio);
-            cvt_coord.z = std_z - 30 * origin_coord.z;
+            cvt_coord.z = std_z - 10 * origin_coord.z;
         } else {
             ratio = 210.0 / width;
             cvt_coord.x = 120 + int(origin_coord.x * ratio);
-            cvt_coord.y = (50 - (300 - int(origin_coord.y * ratio)) / 2) +
+            cvt_coord.y = (50 - (300 - int(height * ratio)) / 2) -
                           int(origin_coord.y * ratio);
-            cvt_coord.z = std_z - 30 * origin_coord.z;
+            cvt_coord.z = std_z - 10 * origin_coord.z;
         }
     }
     return cvt_coord;
