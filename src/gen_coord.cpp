@@ -8,8 +8,9 @@
 using namespace cv;
 using namespace std;
 
-const double PI = 3.1415926536;
-const int angle2step = 120;
+const double PI = 3.1415926535897932384626433832795;
+const float angle2step = 6875.4935;
+const float std_z = -260;
 
 typedef struct angles {
     float a;
@@ -28,6 +29,9 @@ string f_dirsteps(xyz curr, xyz next);
 string num2str(int i);
 void gen_coord(string file_path);
 xyz find_dot(xyz circle, int *cp_img, int width, int height);
+xyz convert_coord(xyz origin_coord, int width, int height);
+
+xyz init_coord = {280, 0, -250};
 
 int main() {
     gen_coord("../data/img/sketch.jpg");
@@ -53,7 +57,7 @@ void gen_coord(string file_path) {
     for (int h = 0; h < height; h++) {
         for (int w = 0; w < width; w++) {
             if (cp_img[h][w] == 255) {
-                center = {w, h, 0};
+                center = {w, h, 1};
                 find_tag = 1;
                 break;
             }
@@ -62,6 +66,8 @@ void gen_coord(string file_path) {
             break;
     }
 
+    f_dirsteps(init_coord, convert_coord(center, width, height));
+    center.z = 0;
     while (1) {
         next_center = find_dot(center, (int *)cp_img, width, height);
         if (next_center.z == -1)
@@ -69,20 +75,28 @@ void gen_coord(string file_path) {
         if (next_center.z > 3) {
             xyz temp1 = center;
             temp1.z = 1;
-            f_dirsteps(center, temp1);
+            f_dirsteps(convert_coord(center, width, height),
+                       convert_coord(temp1, width, height));
             next_center.z = 1;
             xyz temp2 = next_center;
-            f_dirsteps(temp1, temp2);
+            f_dirsteps(convert_coord(temp1, width, height),
+                       convert_coord(temp2, width, height));
             next_center.z = 0;
-            f_dirsteps(temp2, next_center);
-            center = next_center;
+            f_dirsteps(convert_coord(temp2, width, height),
+                       convert_coord(next_center, width, height));
         } else {
             next_center.z = 0;
-            f_dirsteps(center, next_center);
-            center = next_center;
+            f_dirsteps(convert_coord(center, width, height),
+                       convert_coord(next_center, width, height));
         }
         cp_img[int(center.y)][int(center.x)] = 0;
+        center = next_center;
     }
+    next_center = center;
+    next_center.z = 1;
+    f_dirsteps(convert_coord(center, width, height),
+               convert_coord(next_center, width, height));
+    f_dirsteps(convert_coord(next_center, width, height), init_coord);
     out.close();
 }
 
@@ -161,29 +175,17 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
 angles cal_angle(xyz coord) {
     float p = 0.0;
     angles angle;
-    p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
-    if (coord.x <= 0)
-        angle.a = asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                  180 / PI;
+    if (coord.x >= 0)
+        angle.a = asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y));
     else
-        angle.a = asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                      180 / PI +
-                  180;
+        angle.a =
+            asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) - PI;
 
-    coord.y = coord.y + 80 * sin(angle.a);
-    coord.x = coord.x + 80 * cos(angle.a);
+    coord.y = coord.y - 80 * sin(angle.a);
+    coord.x = coord.x - 80 * cos(angle.a);
     p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
-    if (coord.x <= 0)
-        angle.a = asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                  180 / PI;
-    else
-        angle.a = asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                      180 / PI +
-                  180;
-
-    angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p)) * 180 / PI;
-    angle.r =
-        (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p)) * 180 / PI;
+    angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p));
+    angle.r = (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p));
 
     return angle;
 }
@@ -195,17 +197,18 @@ string f_dirsteps(xyz curr, xyz next) {
     float angle_a = next_angles.a - curr_angles.a;
     float angle_b = next_angles.b - curr_angles.b;
     float angle_r = next_angles.r - curr_angles.r;
-    if (angle_a > 0)
+
+    if (angle_a >= 0)
         fpath = fpath + "1" + num2str(round(angle_a * angle2step)) + "#";
     else
         fpath = fpath + "0" + num2str(round(-angle_a * angle2step)) + "#";
 
-    if (angle_b > 0)
+    if (angle_b >= 0)
         fpath = fpath + "1" + num2str(round(angle_b * angle2step)) + "#";
     else
         fpath = fpath + "0" + num2str(round(-angle_b * angle2step)) + "#";
 
-    if (angle_r > 0)
+    if (angle_r >= 0)
         fpath = fpath + "1" + num2str(round(angle_r * angle2step)) + "#";
     else
         fpath = fpath + "0" + num2str(round(-angle_r * angle2step)) + "#";
@@ -218,4 +221,41 @@ string num2str(int i) {
     stringstream ss;
     ss << i;
     return ss.str();
+}
+
+xyz convert_coord(xyz origin_coord, int width, int height) {
+    xyz cvt_coord;
+    int std_width = 7 * width;
+    int std_height = 10 * height;
+    float ratio;
+    if (width >= height) {
+        if (std_width < std_height) {
+            ratio = 210.0 / height;
+            cvt_coord.x = 330 - int(origin_coord.y * ratio);
+            cvt_coord.y = (50 - (300 - int(origin_coord.x * ratio)) / 2) -
+                          int(origin_coord.x * ratio);
+            cvt_coord.z = std_z - 30 * origin_coord.z;
+        } else {
+            ratio = 300.0 / width;
+            cvt_coord.x = (330 - (210 - int(origin_coord.y * ratio)) / 2) -
+                          int(origin_coord.y * ratio);
+            cvt_coord.y = 50 - int(origin_coord.x * ratio);
+            cvt_coord.z = std_z - 30 * origin_coord.z;
+        }
+    } else {
+        if (std_width < std_height) {
+            ratio = 300.0 / height;
+            cvt_coord.x = (120 + (210 - int(origin_coord.x * ratio)) / 2) +
+                          int(origin_coord.x * ratio);
+            cvt_coord.y = 50 - int(origin_coord.y * ratio);
+            cvt_coord.z = std_z - 30 * origin_coord.z;
+        } else {
+            ratio = 210.0 / width;
+            cvt_coord.x = 120 + int(origin_coord.x * ratio);
+            cvt_coord.y = (50 - (300 - int(origin_coord.y * ratio)) / 2) +
+                          int(origin_coord.y * ratio);
+            cvt_coord.z = std_z - 30 * origin_coord.z;
+        }
+    }
+    return cvt_coord;
 }
