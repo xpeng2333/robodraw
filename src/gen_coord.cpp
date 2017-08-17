@@ -43,7 +43,7 @@ int main() {
 }
 
 void gen_coord(string file_path) {
-    Mat src = imread(file_path, 1);
+    Mat src = imread(file_path, 0);
     ofstream out("out.txt");
     int width = src.cols;
     int height = src.rows;
