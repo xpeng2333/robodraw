@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <string>
 
-const double PI = 3.1415926536;
-const int angle2step = 120;
+const double PI = 3.1415926535897932384626433832795;
+const float angle2step = 6875.4935;
 
 typedef struct angles {
     float a;
@@ -33,11 +33,12 @@ int main() {
     int num = 2 * PI / 0.05;
     float an = 0;
     ofstream out("out.txt");
-    xyz curr = {280, 0, -250};
-    xyz next = {280, 0, -280};
-    /*  out << f_dirsteps(curr, next);
-      curr = next;
-      int i;
+    xyz curr = {230, 0, -250};
+    // xyz next = {180, 0, -250};
+    // out << f_dirsteps(curr, next);
+    // curr = next;
+
+    /*  int i;
       int j;
       */
     /*
@@ -113,106 +114,100 @@ int main() {
         curr = next;
      */
 
-    for (int i = 0; i < PI * 20; i++) {
-        next.x = 200 * cos(an);
-        next.y = -200 * sin(an);
-        next.z = -290;
+    /*for (int i = 0; i < PI * 200; i++) {
+        next.x = 220 + 60 * cos(an);
+        next.y = -100 + 60 * sin(an);
+        next.z = -272; // - next.x / 20 - next.y / 17;
         out << f_dirsteps(curr, next);
-        an += 0.05;
+        an += 0.01;
         curr = next;
+    }*/
+    xyz next = {230, -150, -250};
+    out << f_dirsteps(curr, next);
+    curr = next;
+    next = {230, -150, -280};
+    out << f_dirsteps(curr, next);
+    curr = next;
+    next = {230, -150, -250};
+    out << f_dirsteps(curr, next);
+    curr = next;
+    next = {280, 0, -250};
+    out << f_dirsteps(curr, next);
+    /*    for (int j = 200; j > 0; j -= 3) {
+            next.x = 100;
+            next.y = -j;
+            next.z = -296;
+            out << f_dirsteps(curr, next);
+            curr = next;
+        }
+     */
+    // next = {200, 0, -250};
+    // out << f_dirsteps(curr, next);
 
-        next = {280, 0, -250};
-        out << f_dirsteps(curr, next);
+    /*
+    //  xyz dot1 = {100, 100, -260};
+    xyz dot2 = {200, 100, -260};
+    xyz dot3 = {200, 0, -260};
 
-        /*    for (int j = 200; j > 0; j -= 3) {
-                next.x = 100;
-                next.y = -j;
-                next.z = -296;
-                out << f_dirsteps(curr, next);
-                curr = next;
-            }
-         */
-        // next = {200, 0, -250};
-        // out << f_dirsteps(curr, next);
+    out << f_dirsteps(curr, next);
+    out << f_dirsteps(next, dot2);
+    // out << f_dirsteps(dot1, dot2);
+    out << f_dirsteps(dot2, dot3);
+    out << f_dirsteps(dot3, curr);
+    */
 
-        /*
-        //  xyz dot1 = {100, 100, -260};
-        xyz dot2 = {200, 100, -260};
-        xyz dot3 = {200, 0, -260};
+    out.close();
 
-        out << f_dirsteps(curr, next);
-        out << f_dirsteps(next, dot2);
-        // out << f_dirsteps(dot1, dot2);
-        out << f_dirsteps(dot2, dot3);
-        out << f_dirsteps(dot3, curr);
-        */
-        out.close();
+    return 0;
+}
 
-        return 0;
-    }
+angles cal_angle(xyz coord) {
+    float p = 0.0;
+    angles angle;
+    if (coord.x >= 0)
+        angle.a = asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y));
+    else
+        angle.a =
+            asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) - PI;
 
-    angles cal_angle(xyz coord) {
-        float p = 0.0;
-        angles angle;
-        p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
-        if (coord.x <= 0)
-            angle.a =
-                asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                180 / PI;
-        else
-            angle.a =
-                asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                    180 / PI +
-                180;
+    coord.y = coord.y - 80 * sin(angle.a);
+    coord.x = coord.x - 80 * cos(angle.a);
+    p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
+    angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p));
+    angle.r = (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p));
 
-        coord.y = coord.y + 80 * sin(angle.a);
-        coord.x = coord.x + 80 * cos(angle.a);
-        p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
-        if (coord.x <= 0)
-            angle.a =
-                asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                180 / PI;
-        else
-            angle.a =
-                asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) *
-                    180 / PI +
-                180;
+    return angle;
+}
 
-        angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p)) * 180 / PI;
-        angle.r =
-            (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p)) * 180 / PI;
+string f_dirsteps(xyz curr, xyz next) {
+    string fpath = "$";
+    angles curr_angles = cal_angle(curr);
+    angles next_angles = cal_angle(next);
+    float angle_a = next_angles.a - curr_angles.a;
+    float angle_b = next_angles.b - curr_angles.b;
+    float angle_r = next_angles.r - curr_angles.r;
 
-        return angle;
-    }
+    if (angle_a >= 0)
+        fpath = fpath + "1" + num2str(round(angle_a * angle2step)) + "#";
+    else
+        fpath = fpath + "0" + num2str(round(-angle_a * angle2step)) + "#";
 
-    string f_dirsteps(xyz curr, xyz next) {
-        string fpath = "$";
-        angles curr_angles = cal_angle(curr);
-        angles next_angles = cal_angle(next);
-        float angle_a = next_angles.a - curr_angles.a;
-        float angle_b = next_angles.b - curr_angles.b;
-        float angle_r = next_angles.r - curr_angles.r;
-        if (angle_a > 0)
-            fpath = fpath + "1" + num2str(round(angle_a * angle2step)) + "#";
-        else
-            fpath = fpath + "0" + num2str(round(-angle_a * angle2step)) + "#";
+    if (angle_b >= 0)
+        fpath = fpath + "1" + num2str(round(angle_b * angle2step)) + "#";
+    else
+        fpath = fpath + "0" + num2str(round(-angle_b * angle2step)) + "#";
 
-        if (angle_b > 0)
-            fpath = fpath + "1" + num2str(round(angle_b * angle2step)) + "#";
-        else
-            fpath = fpath + "0" + num2str(round(-angle_b * angle2step)) + "#";
+    if (angle_r >= 0)
+        fpath = fpath + "1" + num2str(round(angle_r * angle2step)) + "#";
+    else
+        fpath = fpath + "0" + num2str(round(-angle_r * angle2step)) + "#";
 
-        if (angle_r > 0)
-            fpath = fpath + "1" + num2str(round(angle_r * angle2step)) + "#";
-        else
-            fpath = fpath + "0" + num2str(round(-angle_r * angle2step)) + "#";
+    fpath = fpath + "@";
+    return fpath;
+}
 
-        fpath = fpath + "@";
-        return fpath;
-    }
-
-    string num2str(int i) {
-        stringstream ss;
-        ss << i;
-        return ss.str();
-    }
+string num2str(int i) {
+    stringstream ss;
+    ss << i;
+    return ss.str();
+}
