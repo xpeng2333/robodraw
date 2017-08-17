@@ -77,7 +77,8 @@ void loop() {
         delay(50);
         tag = 1;
     };
-
+    if (Serial.available() < 11)
+        delay(5);
     if (Serial.read() == '$') {
         dir1 = int(Serial.read() - '0');
         steps1 = readSerial();
