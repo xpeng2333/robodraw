@@ -35,10 +35,6 @@ xyz init_coord = {280, 0, -250};
 
 int main() {
     gen_coord("../data/img/sketch.jpg");
-    /*  xyz haha = {12, 23, 1};
-      xyz hehe = convert_coord(haha, 200, 300);
-      cout << hehe.x << " " << hehe.y << endl;
-      */
     return 0;
 }
 
@@ -61,25 +57,20 @@ void gen_coord(string file_path) {
     for (int h = 0; h < height; h++) {
         for (int w = 0; w < width; w++) {
             if (cp_img[h][w] > 240) {
-                /*              center = {w, h, 1};
-                              cp_img[h][w] = 0;
-                              find_tag = 1;
-                              break;
-                  */
-                cout << h << " " << w << endl;
+                center = {w, h, 1};
+                cp_img[h][w] = 0;
+                find_tag = 1;
+                break;
             }
         }
-        //       if (find_tag == 1)
-        //         break;
+        if (find_tag == 1)
+            break;
     }
 
     out << f_dirsteps(init_coord, convert_coord(center, width, height));
     center.z = 0;
     while (1) {
         next_center = find_dot(center, *cp_img, width, height);
-        //    cout << next_center.x << " " << next_center.y << " " <<
-        //    next_center.z
-        // << endl;
         if (int(next_center.z) == -1)
             break;
 
@@ -116,12 +107,13 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
     int x = center.x;
     int y = center.y;
     xyz next_dot;
-    int map[height][width];
-    for (int h = 0; h < height; h++) {
-        for (int w = 0; w < width; w++) {
-            map[h][w] = *(cp_img + width * h + w);
+    /*    int map[height][width];
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                map[h][w] = *(cp_img + width * h + w);
+            }
         }
-    }
+     */
     int max_cr = max(max(max(x, y), abs(x - width - 1)), abs(y - height - 1));
     for (int cr = 1; cr < max_cr + 1; cr++) {       //分层找点
         for (int dn = -cr + 1; dn < cr + 1; dn++) { //下面的边
@@ -131,7 +123,8 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (x + dn + 1 > width)
                 break;
-            if (map[x + dn][y + cr] > 245) {
+            // if (map[x + dn][y + cr] > 245) {
+            if (*(cp_img + width * (x + dn) + y + cr) > 245) {
                 next_dot = {x + dn, y + cr, cr};
                 *(cp_img + width * (x + dn) + y + cr) = 0;
                 return next_dot;
@@ -145,9 +138,10 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (y - rt < 0)
                 break;
-            if (map[x + cr][y - rt] > 245) {
+            //  if (map[x + cr][y - rt] > 245) {
+            if (*(cp_img + width * (x + cr) + y - rt) > 245) {
                 next_dot = {x + cr, y - rt, cr};
-                *(cp_img + width * (x + cr) + y - cr) = 0;
+                *(cp_img + width * (x + cr) + y - rt) = 0;
                 return next_dot;
             }
         }
@@ -159,7 +153,8 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (x - up < 0)
                 break;
-            if (map[x - up][y - cr] > 245) {
+            // if (map[x - up][y - cr] > 245) {
+            if (*(cp_img + width * (x - up) + y - cr) > 245) {
                 next_dot = {x - up, y - cr, cr};
                 *(cp_img + width * (x - up) + y - cr) = 0;
                 return next_dot;
@@ -173,7 +168,8 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (y + lt + 1 > height)
                 break;
-            if (map[x - cr][y + lt] > 245) {
+            // if (map[x - cr][y + lt] > 245) {
+            if (*(cp_img + width * (x - cr) + y + lt) > 245) {
                 next_dot = {x - cr, y + lt, cr};
                 *(cp_img + width * (x - cr) + y + lt) = 0;
                 return next_dot;
@@ -210,20 +206,26 @@ string f_dirsteps(xyz curr, xyz next) {
     float angle_b = next_angles.b - curr_angles.b;
     float angle_r = next_angles.r - curr_angles.r;
 
+    int a_step = round(angle_a * angle2step);
+    int b_step = round(angle_b * angle2step);
+    int r_step = round(angle_r * angle2step);
+
+    if (!(a_step || b_step || r_step))
+        return "";
     if (angle_a >= 0)
-        fpath = fpath + "1" + num2str(round(angle_a * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(a_step) + "#";
     else
-        fpath = fpath + "0" + num2str(round(-angle_a * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(-a_step) + "#";
 
     if (angle_b >= 0)
-        fpath = fpath + "1" + num2str(round(angle_b * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(b_step) + "#";
     else
-        fpath = fpath + "0" + num2str(round(-angle_b * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(-b_step) + "#";
 
     if (angle_r >= 0)
-        fpath = fpath + "1" + num2str(round(angle_r * angle2step)) + "#";
+        fpath = fpath + "1" + num2str(r_step) + "#";
     else
-        fpath = fpath + "0" + num2str(round(-angle_r * angle2step)) + "#";
+        fpath = fpath + "0" + num2str(-r_step) + "#";
 
     fpath = fpath + "@";
     return fpath;
