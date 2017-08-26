@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-const double PI = 3.1415926535897932384626433832795;
+const double PI = 3.1415926536;
 const float angle2step = 6875.4935;
 const float std_z = -270;
 
@@ -34,13 +34,13 @@ xyz convert_coord(xyz origin_coord, int width, int height);
 xyz init_coord = {280, 0, -250};
 
 int main() {
-    gen_coord("../data/img/sketch.jpg");
+    gen_coord("../data/img/line.jpg");
     return 0;
 }
 
 void gen_coord(string file_path) {
     Mat src = imread(file_path, 0);
-    ofstream out("out.txt");
+    ofstream out("../data/text/out_step.txt");
     int width = src.cols;
     int height = src.rows;
     int cp_img[height][width];
@@ -57,7 +57,7 @@ void gen_coord(string file_path) {
     for (int h = 0; h < height; h++) {
         for (int w = 0; w < width; w++) {
             if (cp_img[h][w] > 240) {
-                center = {w, h, 1};
+                center = {w, h, 0};
                 cp_img[h][w] = 0;
                 find_tag = 1;
                 break;
@@ -68,26 +68,29 @@ void gen_coord(string file_path) {
     }
 
     out << f_dirsteps(init_coord, convert_coord(center, width, height));
-    center.z = 0;
+    center.z = 1;
     while (1) {
         next_center = find_dot(center, *cp_img, width, height);
+        //        cout << next_center.x << " " << next_center.y << " " <<
+        //        next_center.z
+        //      << endl;
         if (int(next_center.z) == -1)
             break;
 
-        if (int(next_center.z) > 3) {
+        if (int(next_center.z) > 30) {
             xyz temp1 = center;
-            temp1.z = 1;
+            temp1.z = 0;
             out << f_dirsteps(convert_coord(center, width, height),
                               convert_coord(temp1, width, height));
-            next_center.z = 1;
+            next_center.z = 0;
             xyz temp2 = next_center;
             out << f_dirsteps(convert_coord(temp1, width, height),
                               convert_coord(temp2, width, height));
-            next_center.z = 0;
+            next_center.z = 1;
             out << f_dirsteps(convert_coord(temp2, width, height),
                               convert_coord(next_center, width, height));
         } else {
-            next_center.z = 0;
+            next_center.z = 1;
             out << f_dirsteps(convert_coord(center, width, height),
                               convert_coord(next_center, width, height));
         }
@@ -96,7 +99,7 @@ void gen_coord(string file_path) {
         center = next_center;
     }
     next_center = center;
-    next_center.z = 1;
+    next_center.z = 0;
     out << f_dirsteps(convert_coord(center, width, height),
                       convert_coord(next_center, width, height));
     out << f_dirsteps(convert_coord(next_center, width, height), init_coord);
@@ -200,6 +203,7 @@ angles cal_angle(xyz coord) {
 
 string f_dirsteps(xyz curr, xyz next) {
     string fpath = "$";
+    cout << curr.x << " " << curr.y << " " << curr.z << endl;
     angles curr_angles = cal_angle(curr);
     angles next_angles = cal_angle(next);
     float angle_a = next_angles.a - curr_angles.a;
