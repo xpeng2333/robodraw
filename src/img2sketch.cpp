@@ -5,7 +5,8 @@
 using namespace cv;
 
 int main(int argc, char *argv[]) {
-    Mat src = imread(argv[1], 1);
+    // Mat src = imread(argv[1], 1);
+    Mat src = imread("../data/img/cam2img.jpg", 1);
     int width = src.cols;
     int height = src.rows;
     Mat gray0, gray1;
@@ -18,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     //融合：颜色减淡
     Mat img(gray1.size(), CV_8UC1);
-    Mat img_line;
+    Mat img_line(gray1.size(), CV_8UC1);
     for (int y = 0; y < height; y++) {
 
         uchar *P0 = gray0.ptr<uchar>(y);
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
     }
     Canny(img, img_line, 50, 100, 3);
     waitKey();
-    imwrite("sketch.jpg", img);
-    imwrite("line.jpg", img_line);
+    imwrite("../data/img/sketch.jpg", img);
+    imwrite("../data/img/line.jpg", img_line);
     return 0;
 }
