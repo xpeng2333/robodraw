@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 using namespace cv;
-// using namespace std;
+using namespace std;
 
 void DrawLine(Mat img, Point start, Point end);
 
@@ -29,7 +29,7 @@ int main() {
             uchar *data = frame.ptr<uchar>(i);
             bool find = false;
             for (int j = 0; j < colNum; j += 3) {
-                if (limit > max(abs(data[j] - 10), abs(data[j + 1] - 10),
+                if (limit > max(max(abs(data[j] - 10), abs(data[j + 1] - 10)),
                                 abs(data[j + 2] - 10))) {
                     if (first_tag == true) {
                         position_startx = position_endx;

@@ -5,7 +5,7 @@
 int main() {
     IplImage *pImg = NULL;
     CvCapture *cap = cvCaptureFromCAM(1);
-    char filename[12] = "../data/img/cam2img.jpg";
+    char filename[25] = "../data/img/cam2img.jpg";
 
     pImg = cvQueryFrame(cap);
     cvSaveImage(filename, pImg);

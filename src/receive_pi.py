@@ -13,7 +13,7 @@ SIZE = 1024
 def checkFile():
     list = os.listdir('.')
     for iterm in list:
-        if iterm == 'image.bmp':
+        if iterm == 'out_step.txt':
             os.remove(iterm)
             print 'remove'
         else:
@@ -34,20 +34,21 @@ def tcplink(sock, addr):
         elif data == 'begin to send':
             print 'create file'
             checkFile()
-            with open('./result.jpeg', 'wb') as f:
+            with open('./out_step.txt', 'wb') as f:
                 pass
         else:
-            with open('./result.jpeg', 'ab') as f:
+            with open('./out_step.txt', 'ab') as f:
                 f.write(data)
     sock.close()
     print 'receive finished'
     print 'Connection from %s:%s closed.' % addr
+    os.system('python3 send_step.py')
 
 
 # 创建一个socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 监听端口（这里的ip要在不同的情况下更改）
-s.bind(('10.42.0.126', 9999))
+s.bind(('192.168.43.101', 9999))
 # 每次只允许一个客户端接入
 s.listen(1)
 print 'Waiting for connection...'
