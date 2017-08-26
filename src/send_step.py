@@ -2,7 +2,7 @@
 import serial
 from time import sleep
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.5)
-fpath = open("../data/text/out_step.txt")
+fpath = open("./out_step.txt")
 path_list = []
 serdata = ''
 for m in fpath.readline():
