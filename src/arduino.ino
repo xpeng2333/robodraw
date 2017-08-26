@@ -6,7 +6,7 @@ const int steper3_dir = 34;
 const int steper3_pul = 35;
 const int signal_rev = 13;
 
-const int std_speed = 4000;
+const int std_speed = 400;
 int dir1 = 0;
 int steps1 = 0;
 int dir2 = 0;
