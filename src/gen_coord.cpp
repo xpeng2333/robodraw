@@ -44,7 +44,7 @@ void gen_coord(string file_path) {
     int width = src.cols;
     int height = src.rows;
     int cp_img[height][width];
-
+    cout << width << " " << height << endl;
     for (int h = 0; h < height; h++) {
         uchar *P = src.ptr<uchar>(h);
         for (int w = 0; w < width; w++) {
@@ -71,9 +71,8 @@ void gen_coord(string file_path) {
     center.z = 1;
     while (1) {
         next_center = find_dot(center, *cp_img, width, height);
-        //        cout << next_center.x << " " << next_center.y << " " <<
-        //        next_center.z
-        //      << endl;
+        // cout << next_center.x << " " << next_center.y << " " << next_center.z
+        //    << endl;
         if (int(next_center.z) == -1)
             break;
 
@@ -94,7 +93,6 @@ void gen_coord(string file_path) {
             out << f_dirsteps(convert_coord(center, width, height),
                               convert_coord(next_center, width, height));
         }
-
         cp_img[int(center.y)][int(center.x)] = 0;
         center = next_center;
     }
@@ -110,14 +108,8 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
     int x = center.x;
     int y = center.y;
     xyz next_dot;
-    /*    int map[height][width];
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                map[h][w] = *(cp_img + width * h + w);
-            }
-        }
-     */
-    int max_cr = max(max(max(x, y), abs(x - width - 1)), abs(y - height - 1));
+
+    int max_cr = max(max(max(x, y), abs(x - width + 1)), abs(y - height + 1));
     for (int cr = 1; cr < max_cr + 1; cr++) {       //分层找点
         for (int dn = -cr + 1; dn < cr + 1; dn++) { //下面的边
             if (y + cr + 1 > height)
@@ -126,10 +118,10 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (x + dn + 1 > width)
                 break;
-            // if (map[x + dn][y + cr] > 245) {
-            if (*(cp_img + width * (x + dn) + y + cr) > 245) {
+
+            if (*(cp_img + width * (y + cr) + x + dn) > 245) {
                 next_dot = {x + dn, y + cr, cr};
-                *(cp_img + width * (x + dn) + y + cr) = 0;
+                *(cp_img + width * (y + cr) + x + dn) = 0;
                 return next_dot;
             }
         }
@@ -137,14 +129,14 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
         for (int rt = -cr + 1; rt < cr + 1; rt++) { //右面的边
             if (x + cr + 1 > width)
                 break;
-            if (y - rt + 1 > height)
+            if (y - rt + 2 > height)
                 continue;
             if (y - rt < 0)
                 break;
-            //  if (map[x + cr][y - rt] > 245) {
-            if (*(cp_img + width * (x + cr) + y - rt) > 245) {
+
+            if (*(cp_img + width * (y - rt) + x + cr) > 245) {
                 next_dot = {x + cr, y - rt, cr};
-                *(cp_img + width * (x + cr) + y - rt) = 0;
+                *(cp_img + width * (y - rt) + x + cr) = 0;
                 return next_dot;
             }
         }
@@ -152,14 +144,14 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
         for (int up = -cr + 1; up < cr + 1; up++) { //上面的边
             if (y - cr < 0)
                 break;
-            if (x - up + 1 > width)
+            if (x - up + 2 > width)
                 continue;
             if (x - up < 0)
                 break;
-            // if (map[x - up][y - cr] > 245) {
-            if (*(cp_img + width * (x - up) + y - cr) > 245) {
+
+            if (*(cp_img + width * (y - cr) + x - up) > 245) {
                 next_dot = {x - up, y - cr, cr};
-                *(cp_img + width * (x - up) + y - cr) = 0;
+                *(cp_img + width * (y - cr) + x - up) = 0;
                 return next_dot;
             }
         }
@@ -171,10 +163,10 @@ xyz find_dot(xyz center, int *cp_img, int width, int height) {
                 continue;
             if (y + lt + 1 > height)
                 break;
-            // if (map[x - cr][y + lt] > 245) {
-            if (*(cp_img + width * (x - cr) + y + lt) > 245) {
+
+            if (*(cp_img + width * (y + lt) + x - cr) > 245) {
                 next_dot = {x - cr, y + lt, cr};
-                *(cp_img + width * (x - cr) + y + lt) = 0;
+                *(cp_img + width * (y + lt) + x - cr) = 0;
                 return next_dot;
             }
         }
@@ -203,7 +195,7 @@ angles cal_angle(xyz coord) {
 
 string f_dirsteps(xyz curr, xyz next) {
     string fpath = "$";
-    cout << curr.x << " " << curr.y << " " << curr.z << endl;
+    //  cout << curr.x << " " << curr.y << " " << curr.z << endl;
     angles curr_angles = cal_angle(curr);
     angles next_angles = cal_angle(next);
     float angle_a = next_angles.a - curr_angles.a;
@@ -243,10 +235,12 @@ string num2str(int i) {
 
 xyz convert_coord(xyz origin_coord, int width, int height) {
     xyz cvt_coord;
-    int std_width = 7 * width;
-    int std_height = 10 * height;
+    int std_width;
+    int std_height;
     float ratio;
     if (width >= height) {
+        std_width = 7 * width;
+        std_height = 10 * height;
         if (std_width < std_height) {
             ratio = 210.0 / height;
             cvt_coord.x = 330 - int(origin_coord.y * ratio);
@@ -261,6 +255,8 @@ xyz convert_coord(xyz origin_coord, int width, int height) {
             cvt_coord.z = std_z - 10 * origin_coord.z;
         }
     } else {
+        std_width = 10 * width;
+        std_height = 7 * height;
         if (std_width < std_height) {
             ratio = 300.0 / height;
             cvt_coord.x = (120 + (210 - int(width * ratio)) / 2) +
