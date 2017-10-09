@@ -15,7 +15,6 @@ def checkFile():
     for iterm in list:
         if iterm == 'out_step.txt':
             os.remove(iterm)
-            print 'remove'
         else:
             pass
 
@@ -23,16 +22,16 @@ def checkFile():
 
 
 def tcplink(sock, addr):
-    print 'Accept new connection from %s:%s...' % addr
+    print('Accept new connection from %s:%s...' % addr)
     sock.send('Welcome from server!')
-    print 'receiving, please wait for a second ...'
+    print('receiving, please wait for a second ...')
     while True:
         data = sock.recv(SIZE)
         if not data:
-            print 'reach the end of file'
+            print('reach the end of file')
             break
         elif data == 'begin to send':
-            print 'create file'
+            print('create file')
             checkFile()
             with open('./out_step.txt', 'wb') as f:
                 pass
@@ -40,8 +39,8 @@ def tcplink(sock, addr):
             with open('./out_step.txt', 'ab') as f:
                 f.write(data)
     sock.close()
-    print 'receive finished'
-    print 'Connection from %s:%s closed.' % addr
+    print('receive finished')
+    print('Connection from %s:%s closed.' % addr)
     os.system('python3 send_step.py')
 
 
@@ -51,7 +50,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('192.168.43.101', 9999))
 # 每次只允许一个客户端接入
 s.listen(1)
-print 'Waiting for connection...'
+print('Waiting for connection...')
 while True:
     sock, addr = s.accept()
     # 建立一个线程用来监听收到的数据

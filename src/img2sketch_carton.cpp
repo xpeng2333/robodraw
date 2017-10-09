@@ -4,8 +4,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace cv;
 
-int main(int argc, char *argv[]) {
-    Mat src = imread("../data/img/cam2img_carton.jpg", 1);
+int main(int argc, char *argv[])
+{
+    Mat src = imread("../data/img/picture.jpg", 1);
     int width = src.cols;
     int height = src.rows;
     //去色

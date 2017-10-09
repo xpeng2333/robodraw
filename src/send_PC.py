@@ -8,12 +8,12 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 建立连接:
 s.connect(('192.168.43.101', 9999))
 # 接收欢迎消息:
-print s.recv(SIZE)
+print(s.recv(SIZE))
 s.send('begin to send')
-print 'sending, please wait for a second ...'
+print('sending, please wait for a second ...')
 with open('../data/text/out_step.txt', 'rb') as f:
     for data in f:
         s.send(data)
-print 'sended !'
+print('sended !')
 s.close()
-print 'connection closed'
+print('connection closed')

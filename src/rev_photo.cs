@@ -7,7 +7,7 @@ namespace TCPServer
         static void Main(string[] args)
         {
             /* File name for received picture */
-            const String FILE_NAME = "Received.jpg";
+            const String FILE_NAME = "../data/img/picture.jpg";
 
             /* Port for incoming connections */
             const int PORT = 3800;

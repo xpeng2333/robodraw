@@ -3,7 +3,7 @@
 from socket import *
 import sys
 import time
-from car import *
+from Car import *
 
 
 def run_raspberry():

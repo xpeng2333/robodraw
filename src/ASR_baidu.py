@@ -7,6 +7,8 @@ import numpy as np
 from pyaudio import PyAudio, paInt16
 import wave
 import sys
+import os
+import re
 import importlib
 importlib.reload(sys)
 
@@ -32,6 +34,10 @@ def ASR_rabbit(filename):
     re_list = (json.loads(s).get('result'))
     if isinstance(re_list, list):
         list_text = re_list[0]
+        key = re.match(
+            r'.*画一[张把位条峰棵株朵片根台件栋座辆架艘支枝面门枚颗块轮份幢间所盏只幅头匹个](.*)', list_text)
+        if not key:
+            os.system("python getimg.py " + key.group(1))
         print(list_text)
         channel.basic_publish(exchange='',
                               routing_key='ASR',
@@ -47,15 +53,7 @@ def save_wave_file(FILENAME, data):
     wf.writeframes(b"".join(data))
     wf.close()
 
-# channel.basic_consume(ASR_rabbit, queue='ASR', no_ack=True)
 
-# channel.start_consuming()
-
-
-'''
-def callback(ch, method, properties, body):
-    record()
-'''
 NUM_SAMPLES = 2048      # pyAudio内部缓存的块的大小
 SAMPLING_RATE = 16000    # 取样频率
 LEVEL = 1500            # 声音保存的阈值
@@ -72,7 +70,7 @@ while True:
     # 读入NUM_SAMPLES个取样
     string_audio_data = stream.read(NUM_SAMPLES)
     # 将读入的数据转换为数组
-    audio_data = np.fromstring(string_audio_data, dtype=np.short)
+    audio_data = np.fromstring(string_audio_data, dtype=np.int16)
     # 计算大于LEVEL的取样的个数
     large_sample_count = np.sum(audio_data > LEVEL)
 
