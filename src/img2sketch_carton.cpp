@@ -6,7 +6,7 @@ using namespace cv;
 
 int main(int argc, char *argv[])
 {
-    Mat src = imread("../data/img/picture.jpg", 1);
+    Mat src = imread("../data/img/picture_carton.jpg", 1);
     int width = src.cols;
     int height = src.rows;
     //去色
