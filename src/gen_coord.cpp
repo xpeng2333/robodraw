@@ -9,35 +9,40 @@ using namespace cv;
 using namespace std;
 
 const double PI = 3.1415926536;
-const float angle2step = 6875.4935;
-const float std_z = -270;
+const double angle2step = 6875.4935;
+const double std_z = -310;
+
+long a1 = 0;
+long a2 = 0;
+long a3 = 0;
 
 typedef struct angles
 {
-    float a;
-    float b;
-    float r;
+    double a;
+    double b;
+    double r;
 } angles;
 
 typedef struct xyz
 {
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 } xyz;
 
 angles cal_angle(xyz coord);
 string f_dirsteps(xyz curr, xyz next);
-string num2str(int i);
+string num2str(long i);
 void gen_coord(string file_path);
-xyz find_dot(xyz circle, int *cp_img, int width, int height);
-xyz convert_coord(xyz origin_coord, int width, int height);
+xyz find_dot(xyz circle, long *cp_img, long width, long height);
+xyz convert_coord(xyz origin_coord, long width, long height);
 
-xyz init_coord = {120, 50, -280};
+xyz init_coord = {245, -5, -250};
 
 int main()
 {
     gen_coord("../data/img/line.jpg");
+    printf("%d %d %d\n", a1, a2, a3);
     return 0;
 }
 
@@ -45,23 +50,23 @@ void gen_coord(string file_path)
 {
     Mat src = imread(file_path, 0);
     ofstream out("../data/text/out_step.txt");
-    int width = src.cols;
-    int height = src.rows;
-    int cp_img[height][width];
-    for (int h = 0; h < height; h++)
+    long width = src.cols;
+    long height = src.rows;
+    long cp_img[height][width];
+    for (long h = 0; h < height; h++)
     {
         uchar *P = src.ptr<uchar>(h);
-        for (int w = 0; w < width; w++)
+        for (long w = 0; w < width; w++)
         {
             cp_img[h][w] = P[w];
         }
     }
     xyz center = {0, 0, 0};
     xyz next_center = {-1, -1, -1};
-    int find_tag = 0;
-    for (int h = 0; h < height; h++)
+    long find_tag = 0;
+    for (long h = 0; h < height; h++)
     {
-        for (int w = 0; w < width; w++)
+        for (long w = 0; w < width; w++)
         {
             if (cp_img[h][w] > 240)
             {
@@ -76,14 +81,17 @@ void gen_coord(string file_path)
     }
 
     out << f_dirsteps(init_coord, convert_coord(center, width, height));
+    xyz init_down = center;
+    init_down.z = 1;
+    out << f_dirsteps(convert_coord(center, width, height), convert_coord(init_down, width, height));
     center.z = 1;
     while (1)
     {
         next_center = find_dot(center, *cp_img, width, height);
-        if (int(next_center.z) == -1)
+        if (long(next_center.z) == -1)
             break;
 
-        if (int(next_center.z) > 2)
+        if (long(next_center.z) > 2)
         {
             xyz temp1 = center;
             temp1.z = 0;
@@ -103,7 +111,7 @@ void gen_coord(string file_path)
             out << f_dirsteps(convert_coord(center, width, height),
                               convert_coord(next_center, width, height));
         }
-        cp_img[int(center.y)][int(center.x)] = 0;
+        cp_img[long(center.y)][long(center.x)] = 0;
         center = next_center;
     }
     next_center = center;
@@ -114,16 +122,16 @@ void gen_coord(string file_path)
     out.close();
 }
 
-xyz find_dot(xyz center, int *cp_img, int width, int height)
+xyz find_dot(xyz center, long *cp_img, long width, long height)
 {
-    int x = center.x;
-    int y = center.y;
+    long x = (long)center.x;
+    long y = (long)center.y;
     xyz next_dot;
 
-    int max_cr = max(max(max(x, y), abs(x - width + 1)), abs(y - height + 1));
-    for (int cr = 1; cr < max_cr + 1; cr++)
+    long max_cr = max(max(max(x, y), abs(x - width + 1)), abs(y - height + 1));
+    for (long cr = 1; cr < max_cr + 1; cr++)
     { //分层找点
-        for (int dn = -cr + 1; dn < cr + 1; dn++)
+        for (long dn = -cr + 1; dn < cr + 1; dn++)
         { //下面的边
             if (y + cr + 1 > height)
                 break;
@@ -140,7 +148,7 @@ xyz find_dot(xyz center, int *cp_img, int width, int height)
             }
         }
 
-        for (int rt = -cr + 1; rt < cr + 1; rt++)
+        for (long rt = -cr + 1; rt < cr + 1; rt++)
         { //右面的边
             if (x + cr + 1 > width)
                 break;
@@ -157,7 +165,7 @@ xyz find_dot(xyz center, int *cp_img, int width, int height)
             }
         }
 
-        for (int up = -cr + 1; up < cr + 1; up++)
+        for (long up = -cr + 1; up < cr + 1; up++)
         { //上面的边
             if (y - cr < 0)
                 break;
@@ -174,7 +182,7 @@ xyz find_dot(xyz center, int *cp_img, int width, int height)
             }
         }
 
-        for (int lt = -cr + 1; lt < cr + 1; lt++)
+        for (long lt = -cr + 1; lt < cr + 1; lt++)
         { //左面的边
             if (x - cr < 0)
                 break;
@@ -197,7 +205,7 @@ xyz find_dot(xyz center, int *cp_img, int width, int height)
 
 angles cal_angle(xyz coord)
 {
-    float p = 0.0;
+    double p = 0.0;
     angles angle;
     if (coord.x >= 0)
         angle.a = asin(coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) +
@@ -206,28 +214,32 @@ angles cal_angle(xyz coord)
         angle.a = asin(-coord.y / sqrt(coord.x * coord.x + coord.y * coord.y)) -
                   PI + asin(5 / sqrt(coord.x * coord.x + coord.y * coord.y));
 
-    coord.x = coord.x - 80 * cos(angle.a) - 5 * sin(angle.a);
-    coord.y = coord.y - 80 * sin(angle.a) + 5 * cos(angle.a);
+    coord.x = coord.x - 45 * cos(angle.a) - 5 * sin(angle.a);
+    coord.y = coord.y - 45 * sin(angle.a) + 5 * cos(angle.a);
     p = sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
     angle.b = (acos((45 / p) + (p / 500)) + asin(-coord.z / p));
     angle.r = (acos((p * p - 22500) / (400 * p)) + acos(-coord.z / p));
-
     return angle;
 }
 
 string f_dirsteps(xyz curr, xyz next)
 {
     string fpath = "$";
-    //  cout << curr.x << " " << curr.y << " " << curr.z << endl;
+
     angles curr_angles = cal_angle(curr);
     angles next_angles = cal_angle(next);
-    float angle_a = next_angles.a - curr_angles.a;
-    float angle_b = next_angles.b - curr_angles.b;
-    float angle_r = next_angles.r - curr_angles.r;
 
-    int a_step = round(angle_a * angle2step);
-    int b_step = round(angle_b * angle2step);
-    int r_step = round(angle_r * angle2step);
+    double angle_a = next_angles.a - curr_angles.a;
+    double angle_b = next_angles.b - curr_angles.b;
+    double angle_r = next_angles.r - curr_angles.r;
+
+    long a_step = round(next_angles.a * angle2step) - round(curr_angles.a * angle2step);
+    long b_step = round(next_angles.b * angle2step) - round(curr_angles.b * angle2step);
+    long r_step = round(next_angles.r * angle2step) - round(curr_angles.r * angle2step);
+
+    a1 += a_step;
+    a2 += b_step;
+    a3 += r_step;
 
     if (!(a_step || b_step || r_step))
         return "";
@@ -241,7 +253,7 @@ string f_dirsteps(xyz curr, xyz next)
     else
         fpath = fpath + "0" + num2str(-b_step) + "#";
 
-    if (angle_r >= 0)
+    if (r_step >= 0)
         fpath = fpath + "1" + num2str(r_step) + "#";
     else
         fpath = fpath + "0" + num2str(-r_step) + "#";
@@ -250,19 +262,19 @@ string f_dirsteps(xyz curr, xyz next)
     return fpath;
 }
 
-string num2str(int i)
+string num2str(long i)
 {
     stringstream ss;
     ss << i;
     return ss.str();
 }
 
-xyz convert_coord(xyz origin_coord, int width, int height)
+xyz convert_coord(xyz origin_coord, long width, long height)
 {
     xyz cvt_coord;
-    int std_width;
-    int std_height;
-    float ratio;
+    long std_width;
+    long std_height;
+    double ratio;
     if (width >= height)
     {
         std_width = 7 * width;
@@ -270,17 +282,17 @@ xyz convert_coord(xyz origin_coord, int width, int height)
         if (std_width < std_height)
         {
             ratio = 210.0 / height;
-            cvt_coord.x = 330 - int(origin_coord.y * ratio);
-            cvt_coord.y = (50 - (300 - int(width * ratio)) / 2) -
-                          int(origin_coord.x * ratio);
+            cvt_coord.x = 305 - (origin_coord.y * ratio);
+            cvt_coord.y = (100 - (300 - (width * ratio)) / 2) -
+                          (origin_coord.x * ratio);
             cvt_coord.z = std_z - 10 * origin_coord.z;
         }
         else
         {
             ratio = 300.0 / width;
-            cvt_coord.x = (330 - (210 - int(height * ratio)) / 2) -
-                          int(origin_coord.y * ratio);
-            cvt_coord.y = 50 - int(origin_coord.x * ratio);
+            cvt_coord.x = (305 - (210 - (height * ratio)) / 2) -
+                          (origin_coord.y * ratio);
+            cvt_coord.y = 100 - (origin_coord.x * ratio);
             cvt_coord.z = std_z - 10 * origin_coord.z;
         }
     }
@@ -291,17 +303,17 @@ xyz convert_coord(xyz origin_coord, int width, int height)
         if (std_width < std_height)
         {
             ratio = 300.0 / height;
-            cvt_coord.x = (120 + (210 - int(width * ratio)) / 2) +
-                          int(origin_coord.x * ratio);
-            cvt_coord.y = 50 - int(origin_coord.y * ratio);
+            cvt_coord.x = (95 + (210 - (width * ratio)) / 2) +
+                          (origin_coord.x * ratio);
+            cvt_coord.y = 100 - (origin_coord.y * ratio);
             cvt_coord.z = std_z - 10 * origin_coord.z;
         }
         else
         {
             ratio = 210.0 / width;
-            cvt_coord.x = 120 + int(origin_coord.x * ratio);
-            cvt_coord.y = (50 - (300 - int(height * ratio)) / 2) -
-                          int(origin_coord.y * ratio);
+            cvt_coord.x = 95 + (origin_coord.x * ratio);
+            cvt_coord.y = (100 - (300 - (height * ratio)) / 2) -
+                          (origin_coord.y * ratio);
             cvt_coord.z = std_z - 10 * origin_coord.z;
         }
     }
