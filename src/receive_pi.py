@@ -1,9 +1,10 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # 导入库
 import socket
 import threading
 import os
+import time
 
 SIZE = 1024
 
@@ -41,6 +42,7 @@ def tcplink(sock, addr):
     sock.close()
     print('receive finished')
     print('Connection from %s:%s closed.' % addr)
+    time.sleep(1)
     os.system('python3 send_step.py')
 
 

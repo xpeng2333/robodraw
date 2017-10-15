@@ -26,7 +26,7 @@ while True:
     if(mPic_time0 != mPic_time1):
         print("图片已更新")
         mPic_time0 = mPic_time1
-        os.system("./img2sketch")
+        os.system("./img2sketch_carton")
         time.sleep(1)
     if(mPicton_time0 != mPicton_time1):
         print("卡通图片已更新")

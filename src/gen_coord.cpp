@@ -10,11 +10,13 @@ using namespace std;
 
 const double PI = 3.1415926536;
 const double angle2step = 6875.4935;
-const double std_z = -310;
+const double std_z = -294;
+const double std_color = 140;
 
 long a1 = 0;
 long a2 = 0;
 long a3 = 0;
+long total = 0;
 
 typedef struct angles
 {
@@ -43,6 +45,7 @@ int main()
 {
     gen_coord("../data/img/line.jpg");
     printf("%d %d %d\n", a1, a2, a3);
+    printf("%d min\n", (total / (1000000 / 800)) / 60);
     return 0;
 }
 
@@ -52,6 +55,7 @@ void gen_coord(string file_path)
     ofstream out("../data/text/out_step.txt");
     long width = src.cols;
     long height = src.rows;
+    long m = std::min(width, height);
     long cp_img[height][width];
     for (long h = 0; h < height; h++)
     {
@@ -68,7 +72,7 @@ void gen_coord(string file_path)
     {
         for (long w = 0; w < width; w++)
         {
-            if (cp_img[h][w] > 240)
+            if (cp_img[h][w] > std_color)
             {
                 center = {w, h, 0};
                 cp_img[h][w] = 0;
@@ -91,7 +95,7 @@ void gen_coord(string file_path)
         if (long(next_center.z) == -1)
             break;
 
-        if (long(next_center.z) > 2)
+        if (long(next_center.z) > (m / 50))
         {
             xyz temp1 = center;
             temp1.z = 0;
@@ -140,7 +144,7 @@ xyz find_dot(xyz center, long *cp_img, long width, long height)
             if (x + dn + 1 > width)
                 break;
 
-            if (*(cp_img + width * (y + cr) + x + dn) > 245)
+            if (*(cp_img + width * (y + cr) + x + dn) > std_color)
             {
                 next_dot = {x + dn, y + cr, cr};
                 *(cp_img + width * (y + cr) + x + dn) = 0;
@@ -157,7 +161,7 @@ xyz find_dot(xyz center, long *cp_img, long width, long height)
             if (y - rt < 0)
                 break;
 
-            if (*(cp_img + width * (y - rt) + x + cr) > 245)
+            if (*(cp_img + width * (y - rt) + x + cr) > std_color)
             {
                 next_dot = {x + cr, y - rt, cr};
                 *(cp_img + width * (y - rt) + x + cr) = 0;
@@ -174,7 +178,7 @@ xyz find_dot(xyz center, long *cp_img, long width, long height)
             if (x - up < 0)
                 break;
 
-            if (*(cp_img + width * (y - cr) + x - up) > 245)
+            if (*(cp_img + width * (y - cr) + x - up) > std_color)
             {
                 next_dot = {x - up, y - cr, cr};
                 *(cp_img + width * (y - cr) + x - up) = 0;
@@ -191,7 +195,7 @@ xyz find_dot(xyz center, long *cp_img, long width, long height)
             if (y + lt + 1 > height)
                 break;
 
-            if (*(cp_img + width * (y + lt) + x - cr) > 245)
+            if (*(cp_img + width * (y + lt) + x - cr) > std_color)
             {
                 next_dot = {x - cr, y + lt, cr};
                 *(cp_img + width * (y + lt) + x - cr) = 0;
@@ -241,6 +245,8 @@ string f_dirsteps(xyz curr, xyz next)
     a2 += b_step;
     a3 += r_step;
 
+    total += max(abs(a_step), max(abs(b_step), abs(r_step)));
+
     if (!(a_step || b_step || r_step))
         return "";
     if (angle_a >= 0)
@@ -285,7 +291,7 @@ xyz convert_coord(xyz origin_coord, long width, long height)
             cvt_coord.x = 305 - (origin_coord.y * ratio);
             cvt_coord.y = (100 - (300 - (width * ratio)) / 2) -
                           (origin_coord.x * ratio);
-            cvt_coord.z = std_z - 10 * origin_coord.z;
+            cvt_coord.z = std_z - 20 * origin_coord.z;
         }
         else
         {
@@ -293,7 +299,7 @@ xyz convert_coord(xyz origin_coord, long width, long height)
             cvt_coord.x = (305 - (210 - (height * ratio)) / 2) -
                           (origin_coord.y * ratio);
             cvt_coord.y = 100 - (origin_coord.x * ratio);
-            cvt_coord.z = std_z - 10 * origin_coord.z;
+            cvt_coord.z = std_z - 20 * origin_coord.z;
         }
     }
     else
@@ -306,7 +312,7 @@ xyz convert_coord(xyz origin_coord, long width, long height)
             cvt_coord.x = (95 + (210 - (width * ratio)) / 2) +
                           (origin_coord.x * ratio);
             cvt_coord.y = 100 - (origin_coord.y * ratio);
-            cvt_coord.z = std_z - 10 * origin_coord.z;
+            cvt_coord.z = std_z - 20 * origin_coord.z;
         }
         else
         {
@@ -314,7 +320,7 @@ xyz convert_coord(xyz origin_coord, long width, long height)
             cvt_coord.x = 95 + (origin_coord.x * ratio);
             cvt_coord.y = (100 - (300 - (height * ratio)) / 2) -
                           (origin_coord.y * ratio);
-            cvt_coord.z = std_z - 10 * origin_coord.z;
+            cvt_coord.z = std_z - 20 * origin_coord.z;
         }
     }
     return cvt_coord;

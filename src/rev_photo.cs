@@ -35,7 +35,7 @@ namespace TCPServer
 
             /* Clean up and open the received file */
             tcpListener.Stop();
-            System.Diagnostics.Process.Start(FILE_NAME);
+//            System.Diagnostics.Process.Start(FILE_NAME);
         }
 
         public static void StartConnect(System.Net.Sockets.TcpListener tcpListener, int TIMEOUT, String FILE_NAME)

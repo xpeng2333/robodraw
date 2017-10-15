@@ -35,7 +35,7 @@ def ASR_rabbit(filename):
     if isinstance(re_list, list):
         list_text = re_list[0]
         key = re.match(
-            r'.*[画发]一[张把位条峰棵株朵片根台件栋座辆架艘支枝面门枚颗块轮份幢间所盏只幅头匹个](.*)', list_text)
+            r'.*[画发换]一[张把位条峰棵株朵片根台件栋座辆架艘支枝面门枚颗块轮份幢间所盏只幅头匹个](.*)', list_text)
         if key:
             print("画" + key.group(1))
             os.system("python3 getimg.py " + key.group(1))
